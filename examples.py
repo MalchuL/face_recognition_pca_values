@@ -7,6 +7,9 @@ import torchvision.datasets
 from torch.utils.data import DataLoader
 import train
 
+def get_batch():
+    return torch.ones(2,3,450,450)
+
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description='Texture Editing by PRN')
@@ -31,6 +34,12 @@ if __name__ == '__main__':
     parser.add_argument('--batch_size', default='10', type=int,
                         help='batches')
 
+    parser.add_argument('--path_to_normalizer', default='./scaler.obj', type=float,
+                        help='loss which need to save')
+
+    parser.add_argument('--global_error', default='10000', type=float,
+                        help='loss which need to save')
+
     FLAGS = parser.parse_args()
 
     module = models.ResNetDepth(num_channels=3, layers=[2, 3, 4, 2], num_elements=199)
@@ -43,10 +52,10 @@ if __name__ == '__main__':
 
     use_cuda = FLAGS.gpu
     print(FLAGS)
-    trainer = train.Trainer(use_cuda,dset_train.get_train_batch, dset_test.get_ordered_batch, checkpoint_path=FLAGS.checkpoint_path)
+    trainer = train.Trainer(use_cuda,dset_train.get_train_batch, dset_test.get_ordered_batch, checkpoint_path=FLAGS.checkpoint_path,global_loss=FLAGS.global_error)
     if FLAGS.mode == 1:
         trainer.model.train()
         trainer.skip_test=FLAGS.test_aaaa
         trainer.train(1000, FLAGS.batch_size, train_data_size, test_data_size)
     elif FLAGS.mode == 0:
-        trainer.model.eval()
+        print(trainer.model(get_batch()))

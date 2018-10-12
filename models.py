@@ -46,7 +46,7 @@ class ConvBlock(nn.Module):
 
     def forward(self, x):
         residual = x
-
+        print(x.size())
         out1 = self.bn1(x)
         out1 = self.lift1(out1)
         out1 = self.conv1(out1)
@@ -119,6 +119,7 @@ class ResNetDepth(nn.Module):
     def __init__(self, num_channels=3, block=Bottleneck, layers=[2, 4, 4, 2], num_elements=199):
         self.inplanes = 64
         super(ResNetDepth, self).__init__()
+        self.conv= nn.Conv2d(3, self.inplanes,3,padding=1)
         self.conv1 = ConvBlock(3, self.inplanes)
         self.bn1 = nn.BatchNorm2d(64)
         self.lift = LiftingLayerMultiD(64)
@@ -160,6 +161,7 @@ class ResNetDepth(nn.Module):
 
     def forward(self, x):
         #print(x.size())
+        x = self.conv(x)
         x = self.conv1(x)
         x = self.bn1(x)
         x = self.lift(x)
@@ -179,7 +181,8 @@ class ResNetDepth(nn.Module):
         #print(x.size())
         x = x.view(x.size(0), -1)
         x = self.fc1(x)
-        x = F.tanh(x)
+        x = torch.tanh(x)
         x = self.fc2(x)
 
         return x
+
