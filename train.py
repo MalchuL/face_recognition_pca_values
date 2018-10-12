@@ -13,7 +13,7 @@ class Trainer:
         self.model = models.ResNetDepth(num_elements=199)
         if self.is_cuda:
             self.model = self.model.cuda()
-        self.optimizer = optim.Adam(self.model.parameters(), 15e-5)
+        self.optimizer = optim.Adam(self.model.parameters(), 17e-5)
         self.loss = torch.nn.MSELoss()
         self.get_batch_func = get_batch_func
         self.get_test_batch = get_test_batch
@@ -67,8 +67,6 @@ class Trainer:
 
 
 
-
-                loss /= batch_size * iteration
                 print(loss)
             for iteration in range(train_data_count // batch_size):
 

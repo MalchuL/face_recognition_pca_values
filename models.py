@@ -97,7 +97,6 @@ class Bottleneck(nn.Module):
 
     def forward(self, x):
         residual = x
-        print(x.size())
         out = self.conv1(x)
         out = self.bn1(out)
         out = self.selu1(out)
@@ -111,7 +110,6 @@ class Bottleneck(nn.Module):
         out = torch.tanh(out)
         if self.downsample is not None:
             residual = self.downsample(x)
-        print(residual.size(),out.size())
         out = torch.cat([residual, out],dim=1)
 
         return out
