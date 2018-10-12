@@ -111,7 +111,7 @@ class ResNetDepth(nn.Module):
     def __init__(self, num_channels = 3, block=Bottleneck, layers=[2, 4, 4, 2], num_elements=68):
         self.inplanes = 64
         super(ResNetDepth, self).__init__()
-        self.conv1 = nn.Conv2d(3, 64, kernel_size=3, stride=2, padding=3,
+        self.conv1 = nn.Conv2d(3, 64, kernel_size=3, stride=1, padding=1,
                                bias=False)
         self.bn1 = nn.BatchNorm2d(64)
         self.relu = nn.ReLU(inplace=True)
@@ -120,8 +120,8 @@ class ResNetDepth(nn.Module):
         self.layer2 = self._make_layer(block, 128, layers[1], stride=2)
         self.layer3 = self._make_layer(block, 256, layers[2], stride=2)
         self.layer4 = self._make_layer(block, 512, layers[3], stride=2)
-
-        self.fc = nn.Linear(512 * block.expansion, num_elements)
+        output_size = 29*29
+        self.fc = nn.Linear(512 * block.expansion*output_size, num_elements)
 
 
         #param initialization
@@ -151,17 +151,25 @@ class ResNetDepth(nn.Module):
         return nn.Sequential(*layers)
 
     def forward(self, x):
+        print(x.size())
         x = self.conv1(x)
         x = self.bn1(x)
         x = self.relu(x)
         x = self.maxpool(x)
-
+        print(x.size())
+        print('layer 1')
         x = self.layer1(x)
+        print(x.size())
+        print('layer 2')
         x = self.layer2(x)
+        print(x.size())
+        print('layer 3')
         x = self.layer3(x)
+        print(x.size())
+        print('layer 4')
         x = self.layer4(x)
-
-        x = self.avgpool(x)
+        print(x.size())
+        #x = self.avgpool(x)
         x = x.view(x.size(0), -1)
         x = self.fc(x)
 
