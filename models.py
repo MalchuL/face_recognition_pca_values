@@ -25,13 +25,13 @@ class ConvBlock(nn.Module):
     def __init__(self, in_planes, out_planes):
         super(ConvBlock, self).__init__()
         self.bn1 = nn.BatchNorm2d(in_planes)
-        self.lift1 = LiftingLayerMultiD(in_planes)
+        self.selu1 = torch.nn.SELU(inplace=True)
         self.conv1 = conv3x3(in_planes, int(out_planes / 2))
         self.bn2 = nn.BatchNorm2d(int(out_planes / 2))
-        self.lift2 = LiftingLayerMultiD(int(out_planes / 2))
+        self.selu2 = torch.nn.SELU(inplace=True)
         self.conv2 = conv3x3(int(out_planes / 2), int(out_planes / 4))
         self.bn3 = nn.BatchNorm2d(int(out_planes / 4))
-        self.lift3 = LiftingLayerMultiD(int(out_planes / 4))
+        self.selu3 = torch.nn.SELU(inplace=True)
         self.conv3 = conv3x3(int(out_planes / 4), int(out_planes / 4))
 
         if in_planes != out_planes:
@@ -39,7 +39,7 @@ class ConvBlock(nn.Module):
                 nn.BatchNorm2d(in_planes),
                 LiftingLayerMultiD(in_planes),
                 nn.Conv2d(in_planes, out_planes,
-                          kernel_size=1, stride=1, bias=False),
+                          kernel_size=1, stride=1, bias=True),
             )
         else:
             self.downsample = None
@@ -47,17 +47,20 @@ class ConvBlock(nn.Module):
     def forward(self, x):
         residual = x
         print(x.size())
-        out1 = self.bn1(x)
-        out1 = self.lift1(out1)
-        out1 = self.conv1(out1)
 
-        out2 = self.bn2(out1)
-        out2 = self.lift2(out2)
-        out2 = self.conv2(out2)
+        out1 = self.conv1(x)
+        out1 = self.bn1(out1)
+        out1 = self.selu1(out1)
 
-        out3 = self.bn3(out2)
-        out3 = self.lift3(out3)
-        out3 = self.conv3(out3)
+
+        out2 = self.conv2(out1)
+        out2 = self.bn2(out2)
+        out2 = self.selu2(out2)
+
+
+        out3 = self.conv3(out2)
+        out3 = self.bn3(out3)
+        out3 = self.selu3(out3)
 
         out3 = torch.cat((out1, out2, out3), 1)
 
@@ -74,17 +77,17 @@ class Bottleneck(nn.Module):
 
     def __init__(self, inplanes, planes, stride=1, downsample=None):
         super(Bottleneck, self).__init__()
-        self.conv1 = nn.Conv2d(inplanes, planes, kernel_size=1, bias=False)
+
+        self.conv1 = nn.Conv2d(inplanes, planes, kernel_size=1)
         self.bn1 = nn.BatchNorm2d(planes)
-        self.lift1 = LiftingLayerMultiD(planes)
+        self.selu1 = nn.SELU(inplace=True)
         self.conv2 = nn.Conv2d(planes, planes, kernel_size=3, stride=stride,
-                               padding=1, bias=False)
+                               padding=1)
         self.bn2 = nn.BatchNorm2d(planes)
-        self.lift2 = LiftingLayerMultiD(planes)
-        self.conv3 = nn.Conv2d(planes, planes * 4, kernel_size=1, bias=False)
+        self.selu2 = nn.SELU(inplace=True)
+        self.conv3 = nn.Conv2d(planes, planes * 4, kernel_size=1)
         self.bn3 = nn.BatchNorm2d(planes * 4)
         self.downsample = downsample
-        self.lift_out = LiftingLayerMultiD(planes * 4)
         self.stride = stride
 
     def forward(self, x):
@@ -92,10 +95,11 @@ class Bottleneck(nn.Module):
 
         out = self.conv1(x)
         out = self.bn1(out)
-        out = self.lift1(out)
+        out = self.selu1(out)
+
         out = self.conv2(out)
         out = self.bn2(out)
-        out = self.lift2(out)
+        out = self.selu2(out)
 
         out = self.conv3(out)
         out = self.bn3(out)
@@ -104,7 +108,6 @@ class Bottleneck(nn.Module):
             residual = self.downsample(x)
 
         out += residual
-        out = self.lift_out(out)
 
         return out
 
@@ -119,16 +122,27 @@ class ResNetDepth(nn.Module):
     def __init__(self, num_channels=3, block=Bottleneck, layers=[1, 2, 3, 2], num_elements=199):
         self.inplanes = 64
         super(ResNetDepth, self).__init__()
-        self.conv1 = ConvBlock(3, self.inplanes)
-        self.bn1 = nn.BatchNorm2d(64)
-        self.lift = LiftingLayerMultiD(64)
+        self.conv1 = ConvBlock(3, 16)
+        self.bn1 = nn.BatchNorm2d(16)
+        self.selu1 = nn.SELU(inplace=True)
+
+        self.conv2 = ConvBlock(16, 32)
+        self.bn2 = nn.BatchNorm2d(32)
+        self.selu2 = nn.SELU(inplace=True)
+
+        self.conv3 = ConvBlock(32, self.inplanes)
+        self.bn3 = nn.BatchNorm2d(self.inplanes)
+        self.selu3 = nn.SELU(inplace=True)
+
+
+
         self.maxpool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
-        self.layer1 = self._make_layer(block, 64, layers[0])
-        self.layer2 = self._make_layer(block, 128, layers[1], stride=2)
-        self.layer3 = self._make_layer(block, 256, layers[2], stride=2)
-        self.layer4 = self._make_layer(block, 512, layers[3], stride=2)
+        self.layer1 = self._make_layer(block, 32, layers[0])
+        self.layer2 = self._make_layer(block, 64, layers[1], stride=2)
+        self.layer3 = self._make_layer(block, 128, layers[2], stride=2)
+        self.layer4 = self._make_layer(block, 256, layers[3], stride=2)
         output_size = 29 * 29
-        self.fc1 = nn.Linear(512 * block.expansion * output_size, num_elements)
+        self.fc1 = nn.Linear(256 * block.expansion * output_size, num_elements)
         self.fc2 = nn.Linear(num_elements, num_elements)
 
         # param initialization
@@ -150,7 +164,6 @@ class ResNetDepth(nn.Module):
             )
 
         layers = []
-        layers.append(ConvBlock(self.inplanes, self.inplanes))
         layers.append(block(self.inplanes, planes, stride, downsample))
         self.inplanes = planes * block.expansion
         for i in range(1, blocks):
@@ -162,7 +175,16 @@ class ResNetDepth(nn.Module):
         #print(x.size())
         x = self.conv1(x)
         x = self.bn1(x)
-        x = self.lift(x)
+        x = self.selu1(x)
+
+        x = self.conv2(x)
+        x = self.bn2(x)
+        x = self.selu2(x)
+
+        x = self.conv3(x)
+        x = self.bn3(x)
+        x = self.selu3(x)
+
         x = self.maxpool(x)
         #print(x.size())
         #print('layer 1')
