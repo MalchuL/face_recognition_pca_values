@@ -142,7 +142,6 @@ class ResNetDepth(nn.Module):
         self.layer4 = self._make_layer(block, 128, layers[3], stride=2)
         output_size = 29 * 29
         self.fc1 = nn.Linear(128 * block.expansion * output_size, 128 * block.expansion // 2, bias=False)
-        self.bn4 = nn.BatchNorm2d(128 * block.expansion // 2)
         self.fc2 = nn.Linear(128 * block.expansion // 2, num_elements, bias=False)
 
         # param initialization
@@ -200,7 +199,6 @@ class ResNetDepth(nn.Module):
         #print(x.size())
         x = x.view(x.size(0), -1)
         x = self.fc1(x)
-        x = self.bn4(x)
         x = torch.tanh(x)
         x = self.fc2(x)
 
