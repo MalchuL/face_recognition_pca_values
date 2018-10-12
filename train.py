@@ -18,7 +18,6 @@ class Trainer:
         self.get_batch_func = get_batch_func
         self.get_test_batch = get_test_batch
         self.checkpoint_path = checkpoint_path
-        self.skip_test = None
         self.normalizer = self.get_normalizer(path_to_normalizer)
         self.global_loss = global_loss
 
@@ -63,12 +62,6 @@ class Trainer:
                         print('test loss', current_loss)
                         loss += current_loss
 
-
-                    #testing
-                    if self.skip_test is not None and self.skip_test>0:
-                        print(iteration, " current element of ", self.skip_test)
-                        if iteration > self.skip_test:
-                            break
 
                     if global_loss < loss:
                         self.save()
