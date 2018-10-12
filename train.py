@@ -13,7 +13,7 @@ class Trainer:
         self.model = models.ResNetDepth(num_elements=199)
         if self.is_cuda:
             self.model = self.model.cuda()
-        self.optimizer = optim.RMSprop(self.model.parameters(), 15e-7)
+        self.optimizer = optim.Adam(self.model.parameters(), 15e-6)
         self.loss = torch.nn.MSELoss()
         self.get_batch_func = get_batch_func
         self.get_test_batch = get_test_batch
@@ -48,6 +48,7 @@ class Trainer:
         for epoch in range(epoches):
 
             if epoch > 0 and self.get_test_batch:
+                self.save()
                 print("start testing")
                 loss = 0
                 for iteration in range(test_data_count // batch_size):
@@ -62,12 +63,13 @@ class Trainer:
                             prediction = prediction.cuda()
                         current_loss = self.loss(prediction, output).data
                         print('test loss', current_loss)
-                        loss += current_loss
+                        loss += current_loss/((test_data_count // batch_size)*batch_size)
 
 
-                    if global_loss < loss:
-                        self.save()
+
+
                 loss /= batch_size * iteration
+                print(loss)
             for iteration in range(train_data_count // batch_size):
 
                 input, output = self.get_batch_func(batch_size)

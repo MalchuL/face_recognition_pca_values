@@ -137,11 +137,9 @@ class ResNetDepth(nn.Module):
 
         self.conv3 = ConvBlock(32, self.inplanes)
         self.bn3 = nn.BatchNorm2d(self.inplanes)
-        self.selu3 = nn.SELU(inplace=True)
 
 
-
-        self.maxpool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
+        self.maxpool = nn.MaxPool2d(kernel_size=2, stride=2, padding=1)
         self.layer1 = self._make_layer(block, 32, layers[0])
         self.layer2 = self._make_layer(block, 64, layers[1], stride=2)
         self.layer3 = self._make_layer(block, 64, layers[2], stride=2)
