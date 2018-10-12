@@ -90,7 +90,7 @@ class Bottleneck(nn.Module):
                                padding=1)
         self.bn2 = nn.BatchNorm2d(planes)
         self.selu2 = nn.SELU(inplace=True)
-        self.conv3 = nn.Conv2d(planes, planes * 2, kernel_size=1)
+        self.conv3 = nn.Conv2d(planes, planes, kernel_size=1)
         self.bn3 = nn.BatchNorm2d(planes * 2)
         self.downsample = downsample
         self.stride = stride
@@ -112,7 +112,7 @@ class Bottleneck(nn.Module):
         if self.downsample is not None:
             residual = self.downsample(x)
 
-        out += residual
+        out = torch.cat([ residual,out])
 
         return out
 
@@ -146,6 +146,7 @@ class ResNetDepth(nn.Module):
         self.layer4 = self._make_layer(block, 128, layers[3], stride=2)
         output_size = 29 * 29
         self.fc1 = nn.Linear(128 * block.expansion * output_size, 128 * block.expansion // 2, bias=False)
+        self.bn4 = nn.BatchNorm2d(128 * block.expansion // 2)
         self.fc2 = nn.Linear(128 * block.expansion // 2, num_elements, bias=False)
 
         # param initialization
@@ -158,16 +159,9 @@ class ResNetDepth(nn.Module):
                 m.bias.data.zero_()
 
     def _make_layer(self, block, planes, blocks, stride=1):
-        downsample = None
-        if stride != 1 or self.inplanes != planes * block.expansion:
-            downsample = nn.Sequential(
-                nn.Conv2d(self.inplanes, planes * block.expansion,
-                          kernel_size=3, stride=stride, bias=False, padding=1),
-                nn.BatchNorm2d(planes * block.expansion),
-            )
 
         layers = []
-        layers.append(block(self.inplanes, planes, stride, downsample))
+        layers.append(block(self.inplanes, planes, stride, None))
         self.inplanes = planes * block.expansion
         for i in range(1, blocks):
             layers.append(block(self.inplanes, planes))
@@ -191,20 +185,20 @@ class ResNetDepth(nn.Module):
         #print(x.size())
         #print('layer 1')
         x = self.layer1(x)
-        x = torch.tanh(x)
         #print(x.size())
         #print('layer 2')
         x = self.layer2(x)
         #print(x.size())
         #print('layer 3')
         x = self.layer3(x)
-        x = torch.tanh(x)
         #print(x.size())
         #print('layer 4')
         x = self.layer4(x)
         #print(x.size())
         x = x.view(x.size(0), -1)
         x = self.fc1(x)
+        x = self.bn4(x)
+        x = torch.tanh(x)
         x = self.fc2(x)
 
 
