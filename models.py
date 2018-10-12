@@ -5,15 +5,15 @@ import math
 
 
 class LiftingLayerMultiD(nn.Module):
-
     def __init__(self, in_channels):
         super(LiftingLayerMultiD, self).__init__()
-        self.to_base = nn.Conv2d(in_channels*2,in_channels,1,bias=False)
+        self.to_base = nn.Conv2d(in_channels * 2, in_channels, 1, bias=False)
 
     def forward(self, x):
-        x = torch.cat([F.relu(x,inplace=True), -1.0 * F.relu(-1.0 * x, inplace=True)], dim=1)
+        x = torch.cat([F.relu(x, inplace=True), -1.0 * F.relu(-1.0 * x, inplace=True)], dim=1)
         x = self.to_base(x)
         return x
+
 
 def conv3x3(in_planes, out_planes, strd=1, padding=1, bias=True):
     "3x3 convolution with padding"
@@ -25,7 +25,7 @@ class ConvBlock(nn.Module):
     def __init__(self, in_planes, out_planes):
         super(ConvBlock, self).__init__()
         self.bn1 = nn.BatchNorm2d(in_planes)
-        self.lift1=LiftingLayerMultiD(in_planes)
+        self.lift1 = LiftingLayerMultiD(in_planes)
         self.conv1 = conv3x3(in_planes, int(out_planes / 2))
         self.bn2 = nn.BatchNorm2d(int(out_planes / 2))
         self.lift2 = LiftingLayerMultiD(int(out_planes / 2))
@@ -70,7 +70,6 @@ class ConvBlock(nn.Module):
 
 
 class Bottleneck(nn.Module):
-
     expansion = 4
 
     def __init__(self, inplanes, planes, stride=1, downsample=None):
@@ -109,6 +108,7 @@ class Bottleneck(nn.Module):
 
         return out
 
+
 def calc_pad(kernel_size=3, dilation=1):
     kernel_size = (kernel_size, kernel_size) if type(kernel_size) == int else kernel_size
     dilation = (dilation, dilation) if type(dilation) == int else dilation
@@ -116,8 +116,7 @@ def calc_pad(kernel_size=3, dilation=1):
 
 
 class ResNetDepth(nn.Module):
-
-    def __init__(self, num_channels = 3, block=Bottleneck, layers=[2, 4, 4, 2], num_elements=199):
+    def __init__(self, num_channels=3, block=Bottleneck, layers=[2, 4, 4, 2], num_elements=199):
         self.inplanes = 64
         super(ResNetDepth, self).__init__()
         self.conv1 = ConvBlock(3, self.inplanes)
@@ -128,12 +127,11 @@ class ResNetDepth(nn.Module):
         self.layer2 = self._make_layer(block, 128, layers[1], stride=2)
         self.layer3 = self._make_layer(block, 256, layers[2], stride=2)
         self.layer4 = self._make_layer(block, 512, layers[3], stride=2)
-        output_size = 29*29
-        self.fc1 = nn.Linear(512 * block.expansion*output_size, num_elements)
+        output_size = 29 * 29
+        self.fc1 = nn.Linear(512 * block.expansion * output_size, num_elements)
         self.fc2 = nn.Linear(num_elements, num_elements)
 
-
-        #param initialization
+        # param initialization
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
                 n = m.kernel_size[0] * m.kernel_size[1] * m.out_channels
@@ -147,7 +145,7 @@ class ResNetDepth(nn.Module):
         if stride != 1 or self.inplanes != planes * block.expansion:
             downsample = nn.Sequential(
                 nn.Conv2d(self.inplanes, planes * block.expansion,
-                          kernel_size=3, stride=stride, bias=False,padding=1),
+                          kernel_size=3, stride=stride, bias=False, padding=1),
                 nn.BatchNorm2d(planes * block.expansion),
             )
 
