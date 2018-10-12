@@ -25,6 +25,8 @@ if __name__ == '__main__':
                         help='1 - train, 0 - eval')
     parser.add_argument('--gpu', default='True', type=bool,
                         help='set is gpu used')
+    parser.add_argument('--test_aaaa', default='0', type=int,
+                        help='not set in production')
 
     parser.add_argument('--batch_size', default='10', type=int,
                         help='batches')
@@ -44,6 +46,7 @@ if __name__ == '__main__':
     trainer = train.Trainer(use_cuda,dset_train.get_train_batch, dset_test.get_ordered_batch, checkpoint_path=FLAGS.checkpoint_path)
     if FLAGS.mode == 1:
         trainer.model.train()
+        trainer.skip_test=FLAGS.test_aaaa
         trainer.train(1000, FLAGS.batch_size, train_data_size, test_data_size)
     elif FLAGS.mode == 0:
         trainer.model.eval()
