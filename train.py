@@ -52,12 +52,14 @@ class Trainer:
                 loss = 0
                 for iteration in range(test_data_count // batch_size):
                     input, output = self.get_test_batch(iteration, batch_size)
-                    output = self._transform_output(output)
                     if self.is_cuda:
                         input, output = input.cuda(), output.cuda()
 
                     with torch.no_grad():
                         prediction = self.model(input)
+                        prediction = self.inverse_transform(prediction)
+                        if self.is_cuda:
+                            prediction = prediction.cuda()
                         current_loss = self.loss(prediction, output).data
                         print('test loss', current_loss)
                         loss += current_loss
@@ -83,7 +85,7 @@ class Trainer:
                 del loss
 
     def inverse_transform(self,y):
-        return self.normalizer.inverse_transform(y)
+        return torch.from_numpy(self.normalizer.inverse_transform(y)).type(torch.FloatTensor)
 
     def _transform_output(self, y):
         return torch.from_numpy(self.normalizer.transform(y)).type(torch.FloatTensor)
