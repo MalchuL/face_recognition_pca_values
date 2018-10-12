@@ -160,7 +160,7 @@ class ResNetDepth(nn.Module):
             downsample = nn.Sequential(
                 nn.Conv2d(self.inplanes, planes,
                           kernel_size=3, stride=stride, bias=False, padding=1),
-                nn.BatchNorm2d(planes * block.expansion),
+                nn.BatchNorm2d(planes),
             )
 
         layers = []
