@@ -40,7 +40,7 @@ if __name__ == '__main__':
     test_data_size = dset_test.get_size()
 
     use_cuda = FLAGS.gpu
-
+    print(FLAGS)
     trainer = train.Trainer(use_cuda,dset_train.get_train_batch, dset_test.get_ordered_batch, checkpoint_path=FLAGS.checkpoint_path)
     if FLAGS.mode == 1:
         trainer.model.train()
