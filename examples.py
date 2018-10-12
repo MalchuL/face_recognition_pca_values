@@ -13,13 +13,13 @@ if __name__ == '__main__':
 
     parser.add_argument('--names_path_train', default='./datasets/train.txt', type=str,
                         help='path to train files with names in folder')
-    parser.add_argument('--img_path_train', default='./datasets/', type=str,
+    parser.add_argument('--img_path_train', default='./datasets/train/', type=str,
                         help='path to train data folder')
     parser.add_argument('--names_path_test', default='./datasets/test.txt', type=str,
                         help='path to test files with names in folder')
-    parser.add_argument('--img_path_test', default='./datasets/', type=str,
+    parser.add_argument('--img_path_test', default='./datasets/train/', type=str,
                         help='path to test data folder')
-    parser.add_argument('--checkpoint_path', default='TestImages/output.jpg', type=str,
+    parser.add_argument('--checkpoint_path', default='./data.ckpt', type=str,
                         help='path to checkpoint data')
     parser.add_argument('--mode', default=1, type=int,
                         help='1 - train, 0 - eval')

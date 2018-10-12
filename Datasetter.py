@@ -48,7 +48,7 @@ class HackatonDataset(torch.utils.data.Dataset):
         for element in array:
             x, y = self[element]
             y = torch.from_numpy(y)
-            print(type(y))
+            #print(type(y))
             X.append(x)
             Y.append(y)
         X = torch.stack(X, 0)
@@ -61,7 +61,7 @@ class HackatonDataset(torch.utils.data.Dataset):
         for element in array:
             x, y = self[element]
             y = torch.from_numpy(y)
-            print(type(y))
+            #print(type(y))
             X.append(x)
             Y.append(y)
         X = torch.stack(X, 0)
