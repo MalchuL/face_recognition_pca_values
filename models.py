@@ -37,7 +37,7 @@ class ConvBlock(nn.Module):
         if in_planes != out_planes:
             self.downsample = nn.Sequential(
                 nn.BatchNorm2d(in_planes),
-                LiftingLayerMultiD(in_planes),
+                nn.SELU(inplace=True),
                 nn.Conv2d(in_planes, out_planes,
                           kernel_size=1, stride=1, bias=True),
             )
