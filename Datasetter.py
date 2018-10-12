@@ -57,6 +57,19 @@ class HackatonDataset(torch.utils.data.Dataset):
         Y = torch.stack(Y,0)
         return X,Y
 
+    def get_ordered_batch(self, offset, batch_size):
+        array=range((offset)*batch_size, (offset+1)*batch_size)
+        X, Y=[],[]
+        for element in array:
+            x, y= self[element]
+            y = torch.from_numpy(y)
+            print(type(y))
+            X.append(x)
+            Y.append(y)
+        X = torch.stack(X,0)
+        Y = torch.stack(Y,0)
+        return X,Y
+
     def __len__(self):
         return len(self.X_train.index)
 
