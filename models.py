@@ -125,7 +125,7 @@ def calc_pad(kernel_size=3, dilation=1):
 
 class ResNetDepth(nn.Module):
     def __init__(self, num_channels=3, block=Bottleneck, layers=[1, 1, 1, 1], num_elements=199):
-        self.inplanes = 32
+        self.inplanes = 16
         super(ResNetDepth, self).__init__()
         self.conv1 = ConvBlock(3, 16)
         self.bn1 = nn.BatchNorm2d(16)
@@ -136,8 +136,8 @@ class ResNetDepth(nn.Module):
 
 
         self.maxpool = nn.MaxPool2d(kernel_size=2, stride=2, padding=1)
-        self.layer1 = self._make_layer(block, 32, layers[0])
-        self.layer2 = self._make_layer(block, 64, layers[1], stride=2)
+        self.layer1 = self._make_layer(block, 16, layers[0])
+        self.layer2 = self._make_layer(block, 32, layers[1], stride=2)
         self.layer3 = self._make_layer(block, 64, layers[2], stride=2)
         self.layer4 = self._make_layer(block, 128, layers[3], stride=2)
         output_size = 29 * 29
