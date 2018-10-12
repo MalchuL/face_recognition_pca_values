@@ -91,7 +91,7 @@ class Bottleneck(nn.Module):
         self.bn2 = nn.BatchNorm2d(planes)
         self.selu2 = nn.SELU(inplace=True)
         self.conv3 = nn.Conv2d(planes, planes, kernel_size=1)
-        self.bn3 = nn.BatchNorm2d(planes * 2)
+        self.bn3 = nn.BatchNorm2d(planes)
         self.downsample = downsample
         self.stride = stride
 
@@ -108,7 +108,7 @@ class Bottleneck(nn.Module):
 
         out = self.conv3(out)
         out = self.bn3(out)
-
+        out = torch.tanh(out)
         if self.downsample is not None:
             residual = self.downsample(x)
 
