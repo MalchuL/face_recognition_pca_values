@@ -90,8 +90,8 @@ class Bottleneck(nn.Module):
                                padding=1)
         self.bn2 = nn.BatchNorm2d(planes)
         self.selu2 = nn.SELU(inplace=True)
-        self.conv3 = nn.Conv2d(planes, planes, kernel_size=1)
-        self.bn3 = nn.BatchNorm2d(planes)
+        self.conv3 = nn.Conv2d(planes, planes*2-inplanes, kernel_size=1)
+        self.bn3 = nn.BatchNorm2d(planes*2-inplanes)
         self.downsample = downsample
         self.stride = stride
 
@@ -131,12 +131,8 @@ class ResNetDepth(nn.Module):
         self.bn1 = nn.BatchNorm2d(16)
         self.selu1 = nn.SELU(inplace=True)
 
-        self.conv2 = ConvBlock(16, 32)
-        self.bn2 = nn.BatchNorm2d(32)
-        self.selu2 = nn.SELU(inplace=True)
-
-        self.conv3 = ConvBlock(32, self.inplanes)
-        self.bn3 = nn.BatchNorm2d(self.inplanes)
+        self.conv2 = ConvBlock(16, self.inplanes)
+        self.bn2 = nn.BatchNorm2d(self.inplanes)
 
 
         self.maxpool = nn.MaxPool2d(kernel_size=2, stride=2, padding=1)
@@ -183,21 +179,21 @@ class ResNetDepth(nn.Module):
 
         x = self.conv2(x)
         x = self.bn2(x)
-        x = self.selu2(x)
 
-        x = self.conv3(x)
-        x = self.bn3(x)
-
+        x = torch.tanh(x)
         x = self.maxpool(x)
         #print(x.size())
         #print('layer 1')
         x = self.layer1(x)
+        x = torch.tanh(x)
         #print(x.size())
         #print('layer 2')
         x = self.layer2(x)
+        x = torch.tanh(x)
         #print(x.size())
         #print('layer 3')
         x = self.layer3(x)
+        x = torch.tanh(x)
         #print(x.size())
         #print('layer 4')
         x = self.layer4(x)
