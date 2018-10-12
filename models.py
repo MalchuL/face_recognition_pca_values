@@ -78,7 +78,7 @@ class ConvBlock(nn.Module):
 
 
 class Bottleneck(nn.Module):
-    expansion = 4
+    expansion = 2
 
     def __init__(self, inplanes, planes, stride=1, downsample=None):
         super(Bottleneck, self).__init__()
@@ -90,8 +90,8 @@ class Bottleneck(nn.Module):
                                padding=1)
         self.bn2 = nn.BatchNorm2d(planes)
         self.selu2 = nn.SELU(inplace=True)
-        self.conv3 = nn.Conv2d(planes, planes * 4, kernel_size=1)
-        self.bn3 = nn.BatchNorm2d(planes * 4)
+        self.conv3 = nn.Conv2d(planes, planes * 2, kernel_size=1)
+        self.bn3 = nn.BatchNorm2d(planes * 2)
         self.downsample = downsample
         self.stride = stride
 
@@ -125,7 +125,7 @@ def calc_pad(kernel_size=3, dilation=1):
 
 class ResNetDepth(nn.Module):
     def __init__(self, num_channels=3, block=Bottleneck, layers=[1, 1, 1, 1], num_elements=199):
-        self.inplanes = 64
+        self.inplanes = 32
         super(ResNetDepth, self).__init__()
         self.conv1 = ConvBlock(3, 16)
         self.bn1 = nn.BatchNorm2d(16)
@@ -144,11 +144,11 @@ class ResNetDepth(nn.Module):
         self.maxpool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
         self.layer1 = self._make_layer(block, 32, layers[0])
         self.layer2 = self._make_layer(block, 64, layers[1], stride=2)
-        self.layer3 = self._make_layer(block, 128, layers[2], stride=2)
-        self.layer4 = self._make_layer(block, 256, layers[3], stride=2)
+        self.layer3 = self._make_layer(block, 64, layers[2], stride=2)
+        self.layer4 = self._make_layer(block, 128, layers[3], stride=2)
         output_size = 29 * 29
-        self.fc1 = nn.Linear(256 * block.expansion * output_size, 256 * block.expansion // 2,bias=False)
-        self.fc2 = nn.Linear(256 * block.expansion // 2 * output_size, num_elements, bias=False)
+        self.fc1 = nn.Linear(128 * block.expansion * output_size, 128 * block.expansion // 2, bias=False)
+        self.fc2 = nn.Linear(128 * block.expansion // 2, num_elements, bias=False)
 
         # param initialization
         for m in self.modules():
