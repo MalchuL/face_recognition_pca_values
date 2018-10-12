@@ -119,7 +119,6 @@ class ResNetDepth(nn.Module):
     def __init__(self, num_channels=3, block=Bottleneck, layers=[2, 4, 4, 2], num_elements=199):
         self.inplanes = 64
         super(ResNetDepth, self).__init__()
-        self.conv= nn.Conv2d(3, self.inplanes,3,padding=1)
         self.conv1 = ConvBlock(3, self.inplanes)
         self.bn1 = nn.BatchNorm2d(64)
         self.lift = LiftingLayerMultiD(64)
@@ -161,7 +160,6 @@ class ResNetDepth(nn.Module):
 
     def forward(self, x):
         #print(x.size())
-        x = self.conv(x)
         x = self.conv1(x)
         x = self.bn1(x)
         x = self.lift(x)
