@@ -9,7 +9,7 @@ class Trainer:
         self.model = models.ResNetDepth(num_elements=199)
         if self.is_cuda:
             self.model = self.model.cuda()
-        self.optimizer = optim.RMSprop(1e-3)
+        self.optimizer = optim.RMSprop(self.model.parameters(), 1e-3)
         self.loss = torch.nn.MSELoss()
         self.get_batch_func = get_batch_func
         self.get_test_batch = get_test_batch
@@ -25,7 +25,7 @@ class Trainer:
             print('no saved model: ', ex)
 
 
-    def train(self, epoches=1000, data_count=1000, batch_size=10, test_data_count=1000):
+    def train(self, epoches=1000,  batch_size=10, train_data_count=1000, test_data_count=1000):
         self.resume()
         self.model.train()
         global_loss = 100000
@@ -33,8 +33,8 @@ class Trainer:
 
             if self.get_test_batch:
                 loss = 0
-                for iteration in range(test_data_count):
-                    input, output = self.get_test_batch(batch_size)
+                for iteration in range(test_data_count // batch_size):
+                    input, output = self.get_test_batch(iteration, batch_size)
                     if self.is_cuda:
                         input, output = input.cuda(), output.cuda()
 
@@ -48,7 +48,7 @@ class Trainer:
                     if global_loss < loss:
                         self.save()
 
-            for iteration in range(data_count // batch_size):
+            for iteration in range(train_data_count // batch_size):
 
                 input, output = self.get_batch_func(batch_size)
                 if self.is_cuda:

@@ -18,20 +18,21 @@ class HackatonDataset(torch.utils.data.Dataset):
         PIL transforms
     """
 
-    def __init__(self, csv_path, img_path, img_ext):
-        tmp_df = pd.read_csv(csv_path+'train.txt')
+    def __init__(self, names_path, img_path, img_ext):
+        #ToDo check for names_path end with .txt else load all files from names_path
+        tmp_df = list(map(lambda x:x.replace('\n',''),open(names_path).readlines()))
 
-        tmp_df = list(map(lambda x:x.replace('\n',''),open(csv_path+'train.txt').readlines()))
 
-       # assert tmp_df['image_name'].apply(lambda x: os.path.isfile(img_path + x + img_ext)).all(), \
 #"Some images referenced in the CSV file were not found"
 
         self.img_path = img_path
         self.img_ext = img_ext
         self.transform=tr.Compose([tr.Resize((450, 450)), tr.RandomAffine(25), tr.ColorJitter(0.3, 0.5, 0.1), tr.RandomHorizontalFlip(), tr.ToTensor()])
         self.X_train = tmp_df
-        #self.y_train = pd.read_csv('./datasets/images/0001.csv', header=None)
 
+
+    def get_size(self):
+        return len(self.X_train)
 
 
     def __getitem__(self, index):

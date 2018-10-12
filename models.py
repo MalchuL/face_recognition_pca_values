@@ -117,7 +117,7 @@ def calc_pad(kernel_size=3, dilation=1):
 
 class ResNetDepth(nn.Module):
 
-    def __init__(self, num_channels = 3, block=Bottleneck, layers=[2, 4, 4, 2], num_elements=68):
+    def __init__(self, num_channels = 3, block=Bottleneck, layers=[2, 4, 4, 2], num_elements=199):
         self.inplanes = 64
         super(ResNetDepth, self).__init__()
         self.conv1 = ConvBlock(3, self.inplanes)
@@ -129,7 +129,8 @@ class ResNetDepth(nn.Module):
         self.layer3 = self._make_layer(block, 256, layers[2], stride=2)
         self.layer4 = self._make_layer(block, 512, layers[3], stride=2)
         output_size = 29*29
-        self.fc = nn.Linear(512 * block.expansion*output_size, num_elements)
+        self.fc1 = nn.Linear(512 * block.expansion*output_size, num_elements)
+        self.fc2 = nn.Linear(num_elements, num_elements)
 
 
         #param initialization
@@ -179,6 +180,8 @@ class ResNetDepth(nn.Module):
         x = self.layer4(x)
         print(x.size())
         x = x.view(x.size(0), -1)
-        x = self.fc(x)
+        x = self.fc1(x)
+        x = F.tanh(x)
+        x = self.fc2(x)
 
         return x
