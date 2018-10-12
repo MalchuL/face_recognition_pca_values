@@ -41,7 +41,7 @@ if __name__ == '__main__':
 
     use_cuda = FLAGS.gpu
 
-    trainer = train.Trainer(use_cuda, checkpoint_path=FLAGS.checkpoint_path)
+    trainer = train.Trainer(use_cuda,dset_train.get_train_batch, dset_test.get_ordered_batch, checkpoint_path=FLAGS.checkpoint_path)
     if FLAGS.mode == 1:
         trainer.model.train()
         trainer.train(1000, FLAGS.batch_size, train_data_size, test_data_size)
