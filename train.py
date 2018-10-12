@@ -13,7 +13,7 @@ class Trainer:
         self.model = models.ResNetDepth(num_elements=199)
         if self.is_cuda:
             self.model = self.model.cuda()
-        self.optimizer = optim.Adam(self.model.parameters(), 1e-4)
+        self.optimizer = optim.Adam(self.model.parameters(), 1e-5)
         self.loss = torch.nn.MSELoss()
         self.get_batch_func = get_batch_func
         self.get_test_batch = get_test_batch
