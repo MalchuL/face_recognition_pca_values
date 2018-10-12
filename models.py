@@ -24,15 +24,20 @@ def conv3x3(in_planes, out_planes, strd=1, padding=1, bias=True):
 class ConvBlock(nn.Module):
     def __init__(self, in_planes, out_planes):
         super(ConvBlock, self).__init__()
-        self.bn1 = nn.BatchNorm2d(in_planes)
-        self.selu1 = torch.nn.SELU(inplace=True)
+
+
         self.conv1 = conv3x3(in_planes, int(out_planes / 2))
-        self.bn2 = nn.BatchNorm2d(int(out_planes / 2))
-        self.selu2 = torch.nn.SELU(inplace=True)
+        self.bn1 = nn.BatchNorm2d(int(out_planes / 2))
+        self.selu1 = torch.nn.SELU(inplace=True)
+
         self.conv2 = conv3x3(int(out_planes / 2), int(out_planes / 4))
+        self.bn2 = nn.BatchNorm2d(int(out_planes / 4))
+        self.selu2 = torch.nn.SELU(inplace=True)
+
+        self.conv3 = conv3x3(int(out_planes / 4), int(out_planes / 4))
         self.bn3 = nn.BatchNorm2d(int(out_planes / 4))
         self.selu3 = torch.nn.SELU(inplace=True)
-        self.conv3 = conv3x3(int(out_planes / 4), int(out_planes / 4))
+
 
         if in_planes != out_planes:
             self.downsample = nn.Sequential(
