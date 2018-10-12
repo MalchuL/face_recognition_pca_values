@@ -55,17 +55,17 @@ class ConvBlock(nn.Module):
 
         out1 = self.conv1(x)
         out1 = self.bn1(out1)
-        out1 = self.selu1(out1)
+        out1 = torch.tanh(out1)
 
 
         out2 = self.conv2(out1)
         out2 = self.bn2(out2)
-        out2 = self.selu2(out2)
+        out2 = torch.tanh(out2)
 
 
         out3 = self.conv3(out2)
         out3 = self.bn3(out3)
-        out3 = self.selu3(out3)
+        out3 = torch.tanh(out3)
 
         out3 = torch.cat((out1, out2, out3), 1)
 
@@ -99,11 +99,11 @@ class Bottleneck(nn.Module):
         residual = x
         out = self.conv1(x)
         out = self.bn1(out)
-        out = self.selu1(out)
+        out = torch.tanh(out)
 
         out = self.conv2(out)
         out = self.bn2(out)
-        out = self.selu2(out)
+        out = torch.tanh(out)
 
         out = self.conv3(out)
         out = self.bn3(out)
@@ -172,7 +172,7 @@ class ResNetDepth(nn.Module):
         #print(x.size())
         x = self.conv1(x)
         x = self.bn1(x)
-        x = self.selu1(x)
+        x = torch.tanh(x)
 
         x = self.conv2(x)
         x = self.bn2(x)
