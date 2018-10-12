@@ -75,7 +75,7 @@ class Trainer:
 
                 prediction = self.model(input)
                 loss = self.loss(prediction, output)
-                print(loss.item)
+                print(loss.item())
 
                 loss.backward()
                 self.optimizer.step()

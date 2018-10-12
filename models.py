@@ -51,7 +51,7 @@ class ConvBlock(nn.Module):
 
     def forward(self, x):
         residual = x
-        print(x.size())
+        #print(x.size())
 
         out1 = self.conv1(x)
         out1 = self.bn1(out1)
