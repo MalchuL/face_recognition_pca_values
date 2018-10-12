@@ -34,7 +34,7 @@ if __name__ == '__main__':
     parser.add_argument('--batch_size', default='10', type=int,
                         help='batches')
 
-    parser.add_argument('--path_to_normalizer', default='./scaler.obj', type=float,
+    parser.add_argument('--path_to_normalizer', default='./scaler.obj', type=str,
                         help='loss which need to save')
 
     parser.add_argument('--global_error', default='10000', type=float,
