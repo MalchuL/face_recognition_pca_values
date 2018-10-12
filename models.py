@@ -112,7 +112,7 @@ class Bottleneck(nn.Module):
         if self.downsample is not None:
             residual = self.downsample(x)
 
-        out = torch.cat([ residual,out])
+        out = torch.cat([residual, out],dim=1)
 
         return out
 
