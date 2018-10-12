@@ -94,7 +94,6 @@ class Bottleneck(nn.Module):
         out = self.conv1(x)
         out = self.bn1(out)
         out = self.lift1(out)
-
         out = self.conv2(out)
         out = self.bn2(out)
         out = self.lift2(out)
@@ -147,7 +146,7 @@ class ResNetDepth(nn.Module):
         if stride != 1 or self.inplanes != planes * block.expansion:
             downsample = nn.Sequential(
                 nn.Conv2d(self.inplanes, planes * block.expansion,
-                          kernel_size=1, stride=stride, bias=False),
+                          kernel_size=3, stride=stride, bias=False,padding=1),
                 nn.BatchNorm2d(planes * block.expansion),
             )
 
