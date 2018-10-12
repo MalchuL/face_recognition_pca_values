@@ -86,6 +86,6 @@ class Trainer:
         return self.normalizer.inverse_transform(y)
 
     def _transform_output(self, y):
-        return torch.from_numpy(self.normalizer.transform(y))
+        return torch.from_numpy(self.normalizer.transform(y)).type(torch.FloatTensor)
 
 
