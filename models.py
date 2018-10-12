@@ -116,7 +116,7 @@ def calc_pad(kernel_size=3, dilation=1):
 
 
 class ResNetDepth(nn.Module):
-    def __init__(self, num_channels=3, block=Bottleneck, layers=[2, 4, 4, 2], num_elements=199):
+    def __init__(self, num_channels=3, block=Bottleneck, layers=[1, 2, 3, 2], num_elements=199):
         self.inplanes = 64
         super(ResNetDepth, self).__init__()
         self.conv1 = ConvBlock(3, self.inplanes)
