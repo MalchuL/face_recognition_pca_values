@@ -6,11 +6,13 @@ import math
 
 class LiftingLayerMultiD(nn.Module):
 
-    def __init__(self):
+    def __init__(self, in_channels):
         super(LiftingLayerMultiD, self).__init__()
+        self.to_base = nn.Conv2d(in_channels*2,in_channels,1,bias=False)
 
     def forward(self, x):
-        x = torch.cat([F.relu(x), -1.0 * F.relu(-1.0 * x)], dim=1)
+        x = torch.cat([F.relu(x,inplace=True), -1.0 * F.relu(-1.0 * x, inplace=True)], dim=1)
+        x = self.to_base(x)
         return x
 
 def conv3x3(in_planes, out_planes, strd=1, padding=1, bias=True):
@@ -107,7 +109,6 @@ class Bottleneck(nn.Module):
 class HourGlass(nn.Module):
     def __init__(self, num_modules, depth, num_features):
         super(HourGlass, self).__init__()
-        self.num_modules = num_modules
         self.depth = depth
         self.features = num_features
 
@@ -181,6 +182,8 @@ class FAN(nn.Module):
                                                                  256, kernel_size=1, stride=1, padding=0))
 
     def forward(self, x):
+        x = self.conv1(x)
+        x = self.bn1()
         x = F.relu(self.bn1(self.conv1(x)), True)
         x = F.avg_pool2d(self.conv2(x), 2, stride=2)
         x = self.conv3(x)
@@ -212,10 +215,10 @@ class FAN(nn.Module):
 
 class ResNetDepth(nn.Module):
 
-    def __init__(self, block=Bottleneck, layers=[3, 8, 36, 3], num_classes=68):
+    def __init__(self, block=Bottleneck, layers=[2, 4, 4, 2], num_elements=68):
         self.inplanes = 64
         super(ResNetDepth, self).__init__()
-        self.conv1 = nn.Conv2d(3 + 68, 64, kernel_size=7, stride=2, padding=3,
+        self.conv1 = nn.Conv2d(3, 64, kernel_size=3, stride=2, padding=3,
                                bias=False)
         self.bn1 = nn.BatchNorm2d(64)
         self.relu = nn.ReLU(inplace=True)
@@ -225,8 +228,8 @@ class ResNetDepth(nn.Module):
         self.layer3 = self._make_layer(block, 256, layers[2], stride=2)
         self.layer4 = self._make_layer(block, 512, layers[3], stride=2)
         self.avgpool = nn.AvgPool2d(7)
-        self.fc = nn.Linear(512 * block.expansion, num_classes)
-
+        self.fc = nn.Linear(512 * block.expansion, num_elements)
+        #param initialization
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
                 n = m.kernel_size[0] * m.kernel_size[1] * m.out_channels
