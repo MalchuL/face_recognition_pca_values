@@ -51,8 +51,10 @@ class HackatonDataset(torch.utils.data.Dataset):
             #print(type(y))
             X.append(x)
             Y.append(y)
-        X = torch.stack(X, 0)
-        Y = torch.stack(Y, 0)
+        X = torch.stack(X, 0).type(torch.FloatTensor)
+        Y = torch.stack(Y, 0).type(torch.FloatTensor)
+        Y.requires_grad=False
+        X.requires_grad=False
         return X, Y
 
     def get_ordered_batch(self, offset, batch_size):
@@ -64,8 +66,10 @@ class HackatonDataset(torch.utils.data.Dataset):
             #print(type(y))
             X.append(x)
             Y.append(y)
-        X = torch.stack(X, 0)
-        Y = torch.stack(Y, 0)
+        X = torch.stack(X, 0).type(torch.FloatTensor)
+        Y = torch.stack(Y, 0).type(torch.FloatTensor)
+        Y.requires_grad=False
+        X.requires_grad=False
         return X, Y
 
     def __len__(self):
