@@ -40,8 +40,6 @@ if __name__ == '__main__':
 
     FLAGS = parser.parse_args()
 
-    module = models.ResNetDepth(num_channels=3, layers=[2, 3, 4, 2], num_elements=199)
-
     dset_train = HackatonDataset(FLAGS.names_path_train, FLAGS.img_path_train, '.jpg')
     dset_test = HackatonDataset(FLAGS.names_path_test, FLAGS.img_path_test, '.jpg')
 
