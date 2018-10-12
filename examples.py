@@ -48,7 +48,7 @@ if __name__ == '__main__':
     train_data_size = dset_train.get_size()
     test_data_size = dset_test.get_size()
 
-    use_cuda = False
+    use_cuda = FLAGS.gpu
     print(FLAGS)
     trainer = train.Trainer(use_cuda,dset_train.get_train_batch, dset_test.get_ordered_batch, checkpoint_path=FLAGS.checkpoint_path,global_loss=FLAGS.global_error)
     if FLAGS.mode == 1:
