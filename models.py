@@ -160,7 +160,7 @@ class ResNetDepth(nn.Module):
 
     def _make_layer(self, block, planes, blocks, stride=1):
         downsample = None
-        if stride != 1 or self.inplanes != planes:
+        if stride != 1 or self.inplanes != planes * block.expansion:
             downsample = nn.Sequential(
                 nn.Conv2d(self.inplanes, planes,
                           kernel_size=3, stride=stride, bias=False, padding=1),
