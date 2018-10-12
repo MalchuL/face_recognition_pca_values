@@ -162,7 +162,7 @@ class ResNetDepth(nn.Module):
         downsample = None
         if stride != 1 or self.inplanes != planes * block.expansion:
             downsample = nn.Sequential(
-                nn.Conv2d(self.inplanes, planes * block.expansion,
+                nn.Conv2d(self.inplanes, planes,
                           kernel_size=3, stride=stride, bias=False, padding=1),
                 nn.BatchNorm2d(planes * block.expansion),
             )
