@@ -186,7 +186,6 @@ class ResNetDepth(nn.Module):
 
         x = self.conv3(x)
         x = self.bn3(x)
-        x = torch.tanh(x)
 
         x = self.maxpool(x)
         #print(x.size())
@@ -196,7 +195,6 @@ class ResNetDepth(nn.Module):
         #print(x.size())
         #print('layer 2')
         x = self.layer2(x)
-        x = torch.tanh(x)
         #print(x.size())
         #print('layer 3')
         x = self.layer3(x)
@@ -204,11 +202,9 @@ class ResNetDepth(nn.Module):
         #print(x.size())
         #print('layer 4')
         x = self.layer4(x)
-        x = torch.tanh(x)
         #print(x.size())
         x = x.view(x.size(0), -1)
         x = self.fc1(x)
-        x = torch.tanh(x)
         x = self.fc2(x)
 
 
