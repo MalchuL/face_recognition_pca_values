@@ -41,9 +41,9 @@ if __name__ == '__main__':
                         help='path to test data folder')
     parser.add_argument('--checkpoint_path', default='./data.ckpt', type=str,
                         help='path to checkpoint data')
-    parser.add_argument('--mode', default=0, type=int,
+    parser.add_argument('--mode', default=1, type=int,
                         help='1 - train, 0 - eval')
-    parser.add_argument('--gpu', default=False, type=bool,
+    parser.add_argument('--gpu', default=True, type=bool,
                         help='set is gpu used')
 
     parser.add_argument('--batch_size', default='10', type=int,
