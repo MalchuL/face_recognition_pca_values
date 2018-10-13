@@ -1,19 +1,36 @@
 import argparse
-
+import fnmatch
+import os
 import torch
+import PIL.Image
 import models
+import torchvision.transforms as tr
 from Datasetter import HackatonDataset
-import torchvision.datasets
-from torch.utils.data import DataLoader
 import train
+import numpy as np
 
-def get_batch():
-    return torch.ones(2,3,450,450)
+def pred(path, dest, trainer):
+    dirs = os.listdir(path)
+    preprocess = tr.Compose([tr.Resize((450, 450)), tr.ToTensor()])
+    for file in dirs:
+        if fnmatch.fnmatch(file, '*.jpg'):
+            img = PIL.Image.open(path + file)
+            x = preprocess(img.convert('RGB'))
+            x = torch.stack([x], 0).type(torch.FloatTensor)
+            x.requires_grad=False
+            res = trainer.eval(x)
+            np.savetxt(dest + file.replace('jpg', 'csv'), res.numpy(), delimiter='\n')
+            
+            
 
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description='Texture Editing by PRN')
 
+    parser.add_argument('--dest_path_pred', default='./datasets/dest/', type=str,
+                        help='path to prediction results folder')
+    parser.add_argument('--img_path_pred', default='./datasets/test/', type=str,
+                        help='path to prediction data folder')
     parser.add_argument('--names_path_train', default='./datasets/train.txt', type=str,
                         help='path to train files with names in folder')
     parser.add_argument('--img_path_train', default='./datasets/train/', type=str,
@@ -24,9 +41,9 @@ if __name__ == '__main__':
                         help='path to test data folder')
     parser.add_argument('--checkpoint_path', default='./data.ckpt', type=str,
                         help='path to checkpoint data')
-    parser.add_argument('--mode', default=1, type=int,
+    parser.add_argument('--mode', default=0, type=int,
                         help='1 - train, 0 - eval')
-    parser.add_argument('--gpu', default='True', type=bool,
+    parser.add_argument('--gpu', default=False, type=bool,
                         help='set is gpu used')
 
     parser.add_argument('--batch_size', default='10', type=int,
@@ -53,5 +70,4 @@ if __name__ == '__main__':
         trainer.model.train()
         trainer.train(1000, FLAGS.batch_size, train_data_size, test_data_size)
     elif FLAGS.mode == 0:
-        print('test')
-        print(trainer.model(get_batch()))
+        pred(FLAGS.img_path_pred, FLAGS.dest_path_pred, trainer)
